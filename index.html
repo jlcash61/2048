@@ -5,14 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Phaser 2048</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+    .message, .continue-button, .reset-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      color: #ffffff;
+      background-color: #000000;
+      padding: 10px 20px;
+      cursor: pointer;
+      display: none;
+    }
+    .message {
+      font-size: 48px;
+      top: 40%;
+    }
+  </style>
 </head>
 <body>
+  <div id="continueButton" class="continue-button">Continue</div>
+  <div id="resetButton" class="reset-button">Reset</div>
+  <div id="message" class="message"></div>
   <script>
     // Initialize Phaser
     var config = {
       type: Phaser.AUTO,
       width: 400,
-      height: 400,
+      height: 500, // Increased height for title and score
       backgroundColor: '#bbada0',
       scene: {
         preload: preload,
@@ -29,11 +58,22 @@
     var grid;
     var tileSize = 100;
     var tileObjects = [];
-    var swipeThreshold = 20; // Minimum distance for a swipe
+    var score = 0;
+    var scoreText;
+    var puppyThresholds = [512, 1024];
+    var currentPuppyThreshold = 0;
     var startX, startY;
+    var swipeThreshold = 50; // Minimum distance for a swipe
+    var puppyImage;
+    var continueButton = document.getElementById('continueButton');
+    var resetButton = document.getElementById('resetButton');
+    var messageText = document.getElementById('message');
+    var isPuppyDisplayed = false;
 
     function preload() {
-      // Load any assets if needed
+      // Load puppy images
+      this.load.image('puppy1', 'images/puppy1.jpg');
+      this.load.image('puppy2', 'images/puppy2.jpg');
     }
 
     function create() {
@@ -45,6 +85,10 @@
         [0, 0, 0, 0]
       ];
       
+      // Add title and score
+      this.add.text(200, 20, '2048', { fontSize: '48px', color: '#776e65' }).setOrigin(0.5);
+      scoreText = this.add.text(200, 70, 'Score: 0', { fontSize: '24px', color: '#776e65' }).setOrigin(0.5);
+
       // Spawn initial tiles
       addTile();
       addTile();
@@ -63,6 +107,8 @@
     }
 
     function handleInput(event) {
+      if (isPuppyDisplayed) return; // Prevent moves if puppy image is displayed
+
       switch (event.code) {
         case 'ArrowUp':
           moveTiles(0);
@@ -80,11 +126,15 @@
     }
 
     function startSwipe(pointer) {
+      if (isPuppyDisplayed) return; // Prevent swipe if puppy image is displayed
+
       startX = pointer.x;
       startY = pointer.y;
     }
 
     function endSwipe(pointer) {
+      if (isPuppyDisplayed) return; // Prevent swipe if puppy image is displayed
+
       var endX = pointer.x;
       var endY = pointer.y;
       var diffX = endX - startX;
@@ -126,6 +176,7 @@
               if (targetRow > 0 && grid[targetRow - 1][col] === grid[targetRow][col]) {
                 grid[targetRow - 1][col] *= 2;
                 grid[targetRow][col] = 0;
+                score += grid[targetRow - 1][col];
                 moved = true;
               }
             }
@@ -145,6 +196,7 @@
               if (targetRow < 3 && grid[targetRow + 1][col] === grid[targetRow][col]) {
                 grid[targetRow + 1][col] *= 2;
                 grid[targetRow][col] = 0;
+                score += grid[targetRow + 1][col];
                 moved = true;
               }
             }
@@ -164,6 +216,7 @@
               if (targetCol > 0 && grid[row][targetCol - 1] === grid[row][targetCol]) {
                 grid[row][targetCol - 1] *= 2;
                 grid[row][targetCol] = 0;
+                score += grid[row][targetCol - 1];
                 moved = true;
               }
             }
@@ -183,6 +236,7 @@
               if (targetCol < 3 && grid[row][targetCol + 1] === grid[row][targetCol]) {
                 grid[row][targetCol + 1] *= 2;
                 grid[row][targetCol] = 0;
+                score += grid[row][targetCol + 1];
                 moved = true;
               }
             }
@@ -193,6 +247,10 @@
       if (moved) {
         addTile();
         drawGrid(game.scene.keys.default);
+        scoreText.setText('Score: ' + score);
+        checkPuppyThreshold();
+        checkGameOver();
+        checkWinCondition();
       }
     }
 
@@ -220,7 +278,7 @@
         for (let col = 0; col < 4; col++) {
           let value = grid[row][col];
           let x = col * tileSize;
-          let y = row * tileSize;
+          let y = row * tileSize + 100; // Offset for title and score
           let color = getColor(value);
           let tile = scene.add.rectangle(x + tileSize / 2, y + tileSize / 2, tileSize - 10, tileSize - 10, color).setStrokeStyle(2, 0x776e65);
           tileObjects.push(tile);
@@ -247,6 +305,88 @@
         case 2048: return 0xedc22e;
         default: return 0xcdc1b4;
       }
+    }
+
+    function checkPuppyThreshold() {
+      if (currentPuppyThreshold < puppyThresholds.length && score >= puppyThresholds[currentPuppyThreshold]) {
+        let puppyImageKey = currentPuppyThreshold === 0 ? 'puppy1' : 'puppy2';
+        puppyImage = game.scene.keys.default.add.image(200, 250, puppyImageKey).setScale(0.5).setDepth(1); // Show puppy image
+        isPuppyDisplayed = true;
+        continueButton.style.display = 'block';
+        continueButton.onclick = clearPuppyImage;
+        currentPuppyThreshold++;
+      }
+    }
+
+    function clearPuppyImage() {
+      puppyImage.destroy();
+      isPuppyDisplayed = false;
+      continueButton.style.display = 'none';
+    }
+
+    function checkGameOver() {
+      if (!canMove()) {
+        messageText.textContent = 'Game Over';
+        messageText.style.display = 'block';
+        resetButton.style.display = 'block';
+        resetButton.onclick = resetGame;
+      }
+    }
+
+    function canMove() {
+      // Check for empty tiles
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          if (grid[row][col] === 0) {
+            return true;
+          }
+        }
+      }
+      // Check for possible merges
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          if (row < 3 && grid[row][col] === grid[row + 1][col]) {
+            return true;
+          }
+          if (col < 3 && grid[row][col] === grid[row][col + 1]) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function checkWinCondition() {
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          if (grid[row][col] === 2048) {
+            messageText.textContent = 'You Win!';
+            messageText.style.display = 'block';
+            resetButton.style.display = 'block';
+            resetButton.onclick = resetGame;
+          }
+        }
+      }
+    }
+
+    function resetGame() {
+      // Reset game variables
+      grid = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+      ];
+      score = 0;
+      currentPuppyThreshold = 0;
+      isPuppyDisplayed = false;
+      drawGrid(game.scene.keys.default);
+      addTile();
+      addTile();
+      scoreText.setText('Score: 0');
+      messageText.style.display = 'none';
+      continueButton.style.display = 'none';
+      resetButton.style.display = 'none';
     }
   </script>
 </body>
