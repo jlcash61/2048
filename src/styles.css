@@ -1,0 +1,40 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f9f9f9;
+    position: relative;
+  }
+  
+  .message, .continue-button, .reset-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: #ffffff;
+    background-color: #000000;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: none;
+  }
+  
+  .message {
+    font-size: 48px;
+    top: 40%;
+  }
+  
+  .new-game-button {
+    position: absolute;
+    top: 120px;
+    left: 40%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    color: #ffffff;
+    background-color: #000000;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
