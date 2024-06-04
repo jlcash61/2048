@@ -1,0 +1,21 @@
+{
+    "name": "Phaser 2048",
+    "short_name": "2048",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#bbada0",
+    "theme_color": "#bbada0",
+    "icons": [
+      {
+        "src": "images/2048icon192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "images/2048icon512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  
