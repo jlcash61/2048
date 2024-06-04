@@ -5,17 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="images/2048icon152.png">
+  <link rel="icon" type="image/png" href="images/favicon.png"> <!-- Favicon link -->
   <title>Phaser 2048</title>
   
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
   <style>
-    body {
+   body {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
       background-color: #f9f9f9;
+      background-image: url('images/Background.png');
+      background-size: cover;
+      background-position: center;
     }
     /* Add this CSS for the modal */
     .modal {
@@ -90,7 +94,8 @@
     var highScore = 0;
     var scoreText;
     var highScoreText;
-    var puppyThresholds = [32, 64, 128, 256]; // Updated for more puppies
+    //var puppyThresholds = [32, 64, 128, 256]; // Updated for more puppies
+    var puppyThresholds = [256, 512, 1024, 2048]; // Updated for more puppies
     var puppyImages = ['puppy1', 'puppy2', 'puppy3', 'puppy4']; // Added more puppies
     var highestThresholdReached = 0; // Track the highest threshold reached
     var startX, startY;
@@ -143,6 +148,13 @@
         displayModal();
       }
     }
+
+    window.addEventListener('click', () => {
+        if (game.sound.context.state === 'suspended') {
+          game.sound.context.resume();
+        }
+      });
+    
 
     function update() {
       // Game loop logic if needed

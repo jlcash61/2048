@@ -1,4 +1,4 @@
-const CACHE_NAME = 'phaser-2048-cache-v1';
+const CACHE_NAME = 'phaser-2048-cache-v5';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -6,9 +6,7 @@ const urlsToCache = [
   '/images/puppy1.jpg',
   '/images/puppy2.jpg',
   '/images/puppy3.jpg',
-  '/images/puppy4.jpg',
-  '/src/styles.css',
-  '/src/main.js'
+  '/images/puppy4.jpg'
 ];
 
 self.addEventListener('install', event => {
