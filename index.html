@@ -43,7 +43,8 @@
     var highScore = 0;
     var scoreText;
     var highScoreText;
-    var puppyThresholds = [32, 64, 128, 256]; // Updated for more puppies
+    //var puppyThresholds = [4, 8, 16, 32]; // Updated for more puppies
+     var puppyThresholds = [256, 512, 1024, 2048]; // Updated for more puppies
     var puppyImages = ['puppy1', 'puppy2', 'puppy3', 'puppy4']; // Added more puppies
     var highestThresholdReached = 0; // Track the highest threshold reached
     var startX, startY;
@@ -72,11 +73,11 @@
 
       // Add title, score, and high score
       this.add.text(200, 20, '2048', { fontSize: '48px', color: '#776e65' }).setOrigin(0.5);
-      scoreText = this.add.text(200, 65, 'Score: ' + score, { fontSize: '28px', color: '#000000' }).setOrigin(0.5);
-      highScoreText = this.add.text(270, 105, 'High Score: ' + highScore, { fontSize: '24px', color: '#776e65' }).setOrigin(0.5);
+      scoreText = this.add.text(200, 55, 'Score: ' + score, { fontSize: '28px', color: '#000000' }).setOrigin(0.5);
+      highScoreText = this.add.text(270, 85, 'High Score: ' + highScore, { fontSize: '24px', color: '#776e65' }).setOrigin(0.5);
 
       // Add New Game button
-      newGameButton = this.add.text(70, 105, 'New Game', { fontSize: '22px', color: '#ffffff', backgroundColor: '#000000' })
+      newGameButton = this.add.text(70, 85, 'New Game', { fontSize: '22px', color: '#ffffff', backgroundColor: '#000000' })
         .setOrigin(0.5)
         .setPadding({ x: 10, y: 5 })
         .setInteractive()
@@ -289,7 +290,7 @@
         for (let col = 0; col < 4; col++) {
           let value = grid[row][col];
           let x = col * tileSize;
-          let y = row * tileSize + 120; // Offset for title, score, and high score
+          let y = row * tileSize + 100; // Offset for title, score, and high score
           let color = getColor(value);
           let tile = scene.add.rectangle(x + tileSize / 2, y + tileSize / 2, tileSize - 10, tileSize - 10, color).setStrokeStyle(2, 0x776e65);
           tileObjects.push(tile);
