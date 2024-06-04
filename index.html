@@ -14,9 +14,53 @@
       margin: 0;
       background-color: #f9f9f9;
     }
+    /* Add this CSS for the modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+  <!-- Add this HTML for the modal -->
+  <div id="howToPlayModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>How to Play</h2>
+      <p>Use arrow keys or swipe to move the tiles. When two tiles with the same number touch, they merge into one!</p>
+      <label>
+        <input type="checkbox" id="dontShowAgain"> Do not show again
+      </label>
+    </div>
+  </div>
+
   <script>
     // Initialize Phaser
     var config = {
@@ -43,8 +87,7 @@
     var highScore = 0;
     var scoreText;
     var highScoreText;
-    //var puppyThresholds = [4, 8, 16, 32]; // Updated for more puppies
-     var puppyThresholds = [256, 512, 1024, 2048]; // Updated for more puppies
+    var puppyThresholds = [32, 64, 128, 256]; // Updated for more puppies
     var puppyImages = ['puppy1', 'puppy2', 'puppy3', 'puppy4']; // Added more puppies
     var highestThresholdReached = 0; // Track the highest threshold reached
     var startX, startY;
@@ -58,6 +101,7 @@
     var gameWonText;
     var gameWonButton;
     var newGameButton;
+    var showModal = true; // Track the modal display state
 
     function preload() {
       // Load puppy images
@@ -73,11 +117,11 @@
 
       // Add title, score, and high score
       this.add.text(200, 20, '2048', { fontSize: '48px', color: '#776e65' }).setOrigin(0.5);
-      scoreText = this.add.text(200, 55, 'Score: ' + score, { fontSize: '28px', color: '#000000' }).setOrigin(0.5);
-      highScoreText = this.add.text(270, 85, 'High Score: ' + highScore, { fontSize: '24px', color: '#776e65' }).setOrigin(0.5);
+      scoreText = this.add.text(200, 50, 'Score: ' + score, { fontSize: '28px', color: '#000000' }).setOrigin(0.5);
+      highScoreText = this.add.text(275, 80, 'High Score: ' + highScore, { fontSize: '24px', color: '#776e65' }).setOrigin(0.5);
 
       // Add New Game button
-      newGameButton = this.add.text(70, 85, 'New Game', { fontSize: '22px', color: '#ffffff', backgroundColor: '#000000' })
+      newGameButton = this.add.text(80, 80, 'New Game', { fontSize: '22px', color: '#ffffff', backgroundColor: '#000000' })
         .setOrigin(0.5)
         .setPadding({ x: 10, y: 5 })
         .setInteractive()
@@ -90,6 +134,11 @@
 
       // Render the initial state
       drawGrid(this);
+
+      // Show the modal if applicable
+      if (showModal) {
+        displayModal();
+      }
     }
 
     function update() {
@@ -411,6 +460,7 @@
       localStorage.setItem('2048-grid', JSON.stringify(grid));
       localStorage.setItem('2048-score', score);
       localStorage.setItem('highestThresholdReached', highestThresholdReached);
+      localStorage.setItem('showModal', showModal); // Save modal display state
     }
 
     function loadGameState() {
@@ -418,6 +468,7 @@
       let savedScore = localStorage.getItem('2048-score');
       let savedHighScore = localStorage.getItem('highScore');
       let savedHighestThresholdReached = localStorage.getItem('highestThresholdReached');
+      let savedShowModal = localStorage.getItem('showModal');
 
       if (savedGrid) {
         grid = savedGrid;
@@ -442,6 +493,36 @@
 
       if (savedHighestThresholdReached) {
         highestThresholdReached = parseInt(savedHighestThresholdReached);
+      }
+
+      if (savedShowModal) {
+        showModal = savedShowModal === 'true';
+      }
+    }
+
+    function displayModal() {
+      var modal = document.getElementById("howToPlayModal");
+      var span = document.getElementsByClassName("close-button")[0];
+      var dontShowAgain = document.getElementById("dontShowAgain");
+
+      modal.style.display = "block";
+
+      span.onclick = function() {
+        modal.style.display = "none";
+        if (dontShowAgain.checked) {
+          showModal = false;
+          saveGameState();
+        }
+      }
+
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+          if (dontShowAgain.checked) {
+            showModal = false;
+            saveGameState();
+          }
+        }
       }
     }
   </script>
