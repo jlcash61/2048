@@ -1,13 +1,15 @@
-const CACHE_NAME = 'phaser-2048-cache-v5';
+const CACHE_NAME = 'phaser-2048-cache-v6';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/images/puppy1.jpg',
-  '/images/puppy2.jpg',
-  '/images/puppy3.jpg',
-  '/images/puppy4.jpg'
+  '/2048/',
+  '/2048/index.html',
+  '/2048/style.css',
+  '/2048/app.js',
+  '/2048/manifest.json',
+  '/2048/icon.png',
+  '/2048/icon-large.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js'
 ];
+
 
 self.addEventListener('install', event => {
   event.waitUntil(
