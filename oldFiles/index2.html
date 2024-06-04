@@ -40,12 +40,9 @@
     var tileSize = 100;
     var tileObjects = [];
     var score = 0;
-    var highScore = 0;
     var scoreText;
-    var highScoreText;
-    var puppyThresholds = [32, 64, 128, 256]; // Updated for more puppies
+    var puppyThresholds = [256, 512, 1024, 2048]; // Updated for more puppies
     var puppyImages = ['puppy1', 'puppy2', 'puppy3', 'puppy4']; // Added more puppies
-    var highestThresholdReached = 0; // Track the highest threshold reached
     var startX, startY;
     var swipeThreshold = 50; // Minimum distance for a swipe
     var puppyImage;
@@ -56,7 +53,6 @@
     var gameOverButton;
     var gameWonText;
     var gameWonButton;
-    var newGameButton;
 
     function preload() {
       // Load puppy images
@@ -67,20 +63,21 @@
     }
 
     function create() {
-      // Load saved game state if available
-      loadGameState();
-
-      // Add title, score, and high score
+      // Initialize the game grid
+      grid = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+      ];
+      
+      // Add title and score
       this.add.text(200, 20, '2048', { fontSize: '48px', color: '#776e65' }).setOrigin(0.5);
-      scoreText = this.add.text(200, 65, 'Score: ' + score, { fontSize: '28px', color: '#000000' }).setOrigin(0.5);
-      highScoreText = this.add.text(270, 105, 'High Score: ' + highScore, { fontSize: '24px', color: '#776e65' }).setOrigin(0.5);
+      scoreText = this.add.text(200, 70, 'Score: 0', { fontSize: '24px', color: '#776e65' }).setOrigin(0.5);
 
-      // Add New Game button
-      newGameButton = this.add.text(70, 105, 'New Game', { fontSize: '22px', color: '#ffffff', backgroundColor: '#000000' })
-        .setOrigin(0.5)
-        .setPadding({ x: 10, y: 5 })
-        .setInteractive()
-        .on('pointerdown', restartGame);
+      // Spawn initial tiles
+      addTile();
+      addTile();
 
       // Add input handlers
       this.input.keyboard.on('keydown', handleInput, this);
@@ -253,12 +250,6 @@
         addTile();
         drawGrid(game.scene.keys.default);
         scoreText.setText('Score: ' + score);
-        if (score > highScore) {
-          highScore = score;
-          highScoreText.setText('High Score: ' + highScore);
-          localStorage.setItem('highScore', highScore);
-        }
-        saveGameState();
         if (!canMove()) {
           handleGameOver();
         }
@@ -289,7 +280,7 @@
         for (let col = 0; col < 4; col++) {
           let value = grid[row][col];
           let x = col * tileSize;
-          let y = row * tileSize + 120; // Offset for title, score, and high score
+          let y = row * tileSize + 100; // Offset for title and score
           let color = getColor(value);
           let tile = scene.add.rectangle(x + tileSize / 2, y + tileSize / 2, tileSize - 10, tileSize - 10, color).setStrokeStyle(2, 0x776e65);
           tileObjects.push(tile);
@@ -320,16 +311,8 @@
 
     function checkPuppyThreshold(tileValue) {
       let thresholdIndex = puppyThresholds.indexOf(tileValue);
-      if (thresholdIndex !== -1 && tileValue > highestThresholdReached) {
-        highestThresholdReached = tileValue; // Update the highest threshold reached
+      if (thresholdIndex !== -1) {
         let puppyImageKey = puppyImages[thresholdIndex];
-        // Destroy existing puppy image and button if they exist
-        if (puppyImage) {
-          puppyImage.destroy();
-        }
-        if (clearButton) {
-          clearButton.destroy();
-        }
         puppyImage = game.scene.keys.default.add.image(200, 250, puppyImageKey).setScale(0.5).setDepth(1); // Show puppy image
         clearButton = game.scene.keys.default.add.text(200, 400, 'Continue', { fontSize: '32px', color: '#ffffff', backgroundColor: '#000000' })
           .setOrigin(0.5)
@@ -343,11 +326,9 @@
     function clearPuppyImage() {
       if (puppyImage) {
         puppyImage.destroy();
-        puppyImage = null; // Ensure it doesn't reappear
       }
       if (clearButton) {
         clearButton.destroy();
-        clearButton = null; // Ensure it doesn't reappear
       }
     }
 
@@ -392,7 +373,6 @@
         [0, 0, 0, 0]
       ];
       score = 0;
-      highestThresholdReached = 0; // Reset the highest threshold
       scoreText.setText('Score: ' + score);
       gameOver = false;
       gameWon = false;
@@ -403,45 +383,6 @@
       addTile();
       addTile();
       drawGrid(game.scene.keys.default);
-      saveGameState();
-    }
-
-    function saveGameState() {
-      localStorage.setItem('2048-grid', JSON.stringify(grid));
-      localStorage.setItem('2048-score', score);
-      localStorage.setItem('highestThresholdReached', highestThresholdReached);
-    }
-
-    function loadGameState() {
-      let savedGrid = JSON.parse(localStorage.getItem('2048-grid'));
-      let savedScore = localStorage.getItem('2048-score');
-      let savedHighScore = localStorage.getItem('highScore');
-      let savedHighestThresholdReached = localStorage.getItem('highestThresholdReached');
-
-      if (savedGrid) {
-        grid = savedGrid;
-      } else {
-        grid = [
-          [0, 0, 0, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
-        ];
-        addTile();
-        addTile();
-      }
-
-      if (savedScore) {
-        score = parseInt(savedScore);
-      }
-
-      if (savedHighScore) {
-        highScore = parseInt(savedHighScore);
-      }
-
-      if (savedHighestThresholdReached) {
-        highestThresholdReached = parseInt(savedHighestThresholdReached);
-      }
     }
   </script>
 </body>
